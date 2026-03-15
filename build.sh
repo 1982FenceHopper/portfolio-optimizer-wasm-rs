@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-CRATE_NAME="slsqp-wasm"
+CRATE_NAME="portfolio-optimizer-wasm"
 OUT_DIR="dist"
 
 echo "Building Library (Rust -> WASM)"

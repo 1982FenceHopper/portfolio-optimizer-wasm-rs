@@ -1,5 +1,6 @@
 use js_sys::Float64Array;
 use wasm_bindgen::prelude::*;
+// use web_sys::console::log_1;
 
 #[wasm_bindgen]
 pub struct OptimizerResult {
@@ -17,7 +18,7 @@ impl OptimizerResult {
 }
 
 fn project_simplex(v: &[f64]) -> Vec<f64> {
-    let n = v.len();
+    let _n = v.len();
     let mut u = v.to_vec();
     u.sort_unstable_by(|a, b| b.partial_cmp(a).unwrap());
 
@@ -25,7 +26,7 @@ fn project_simplex(v: &[f64]) -> Vec<f64> {
     let mut rho = 0usize;
     for (i, &ui) in u.iter().enumerate() {
         cssv += ui;
-        if ui - (cssv / (i + 1) as f64) > 0.0 {
+        if ui > (cssv - 1.0) / (i + 1) as f64 {
             rho = i;
         }
     }
@@ -40,7 +41,7 @@ fn portfolio_variance(x: &[f64], sigma: &[f64], n: usize) -> f64 {
     let mut sigma_x = vec![0.0_f64; n];
     for i in 0..n {
         for j in 0..n {
-            sigma_x[i] = sigma[i * n + j] * x[j];
+            sigma_x[i] += sigma[i * n + j] * x[j];
         }
     }
 
@@ -59,8 +60,17 @@ fn portfolio_gradient(x: &[f64], sigma: &[f64], n: usize) -> Vec<f64> {
 
 #[wasm_bindgen]
 pub fn min_variance(sigma_flat: &[f64], n: usize) -> OptimizerResult {
+    // log_1(
+    //     &format!(
+    //         "[RUST_WASM_BINARY]\nsigma_flat.len(): {}\nn: {}",
+    //         &sigma_flat.len(),
+    //         n
+    //     )
+    //     .into(),
+    // );
+
     const MAX_ITER: u32 = 1000;
-    const TOL: f64 = 1e-9;
+    const TOL: f64 = 1e-8;
 
     const ALPHA: f64 = 0.3;
     const BETA: f64 = 0.5;
